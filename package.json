@@ -1,0 +1,33 @@
+{
+  "name": "@zachwill/pi-workers",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "User-owned async worker orchestration for pi coding agent",
+  "files": ["extension/", "skills/", "prompts/", "examples/", "README.md"],
+  "keywords": ["pi-package", "pi", "workers", "subagents", "orchestration"],
+  "license": "MIT",
+  "pi": {
+    "extensions": ["./extension/index.ts"],
+    "skills": ["./skills"],
+    "prompts": ["./prompts"]
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-agent-core": "*",
+    "@mariozechner/pi-ai": "*",
+    "@mariozechner/pi-coding-agent": "*",
+    "@mariozechner/pi-tui": "*",
+    "typebox": "*"
+  },
+  "devDependencies": {
+    "@mariozechner/pi-agent-core": "^0.73.0",
+    "@mariozechner/pi-ai": "^0.73.0",
+    "@mariozechner/pi-coding-agent": "^0.73.0",
+    "@mariozechner/pi-tui": "^0.73.0",
+    "@types/node": "^22.19.17",
+    "typebox": "^1.1.37",
+    "typescript": "^5.9.3"
+  }
+}
