@@ -16,6 +16,10 @@ interface WidgetState {
   frameIndex: number;
 }
 
+type WidgetWorkerSummary = Omit<ActiveWorkerSummary, "usage"> & {
+  usage?: Partial<ActiveWorkerSummary["usage"]>;
+};
+
 let widget: WidgetState | undefined;
 
 function formatTokens(count: number): string {
@@ -24,22 +28,23 @@ function formatTokens(count: number): string {
   return count.toString();
 }
 
-function formatUsage(worker: ActiveWorkerSummary): string {
+function formatUsage(worker: WidgetWorkerSummary): string {
   const usage = worker.usage;
-  const contextTokens = usage.contextTokens || worker.contextTokens;
-  const parts = [`turn ${worker.turns}`];
+  const contextTokens = usage?.contextTokens || worker.contextTokens || 0;
+  const turns = usage?.turns ?? worker.turns;
+  const parts = [`turn ${turns}`];
 
-  if (usage.input) parts.push(`↑${formatTokens(usage.input)}`);
-  if (usage.output) parts.push(`↓${formatTokens(usage.output)}`);
-  if (usage.cacheRead) parts.push(`R${formatTokens(usage.cacheRead)}`);
-  if (usage.cacheWrite) parts.push(`W${formatTokens(usage.cacheWrite)}`);
-  if (usage.cost) parts.push(`$${usage.cost.toFixed(4)}`);
+  if (usage?.input) parts.push(`↑${formatTokens(usage.input)}`);
+  if (usage?.output) parts.push(`↓${formatTokens(usage.output)}`);
+  if (usage?.cacheRead) parts.push(`R${formatTokens(usage.cacheRead)}`);
+  if (usage?.cacheWrite) parts.push(`W${formatTokens(usage.cacheWrite)}`);
+  if (usage?.cost) parts.push(`$${usage.cost.toFixed(4)}`);
   parts.push(`${formatTokens(contextTokens)} ctx`);
 
   return parts.join(" · ");
 }
 
-function buildLine(worker: ActiveWorkerSummary, frame: string): string {
+function buildLine(worker: WidgetWorkerSummary, frame: string): string {
   const model = worker.model ?? "…";
   const icon = worker.status === "waiting" ? "⏳" : worker.status === "running" ? frame : STATUS_ICON[worker.status];
   return `${icon} ${worker.id} (${model}) · ${formatUsage(worker)}`;
@@ -63,7 +68,7 @@ export function stopWidgetAnimation(): void {
   current.ctx.ui.setStatus("pi-workers", undefined);
 }
 
-function syncWidgetText(state: WidgetState, workers: ActiveWorkerSummary[]): void {
+function syncWidgetText(state: WidgetState, workers: WidgetWorkerSummary[]): void {
   const frame = SPINNER_FRAMES[state.frameIndex % SPINNER_FRAMES.length] ?? SPINNER_FRAMES[0]!;
   state.text.setText(["pi-workers", ...workers.map((worker) => buildLine(worker, frame))].join("\n"));
   state.tui.requestRender();
